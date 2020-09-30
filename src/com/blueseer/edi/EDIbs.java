@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jcifs.smb.NtlmPasswordAuthentication;
@@ -213,6 +214,25 @@ public static void main(String args[]) throws IOException {
         return vals;
     }
 
+ public static void searchDir(String dir, int days, String pattern) throws IOException {
+     File folder = new File(dir);
+     String content = "";
+               File[] listOfFiles = folder.listFiles();
+               long cutOff = System.currentTimeMillis() - (days * 24 * 60 * 60 * 1000);
+               if (listOfFiles.length == 0) {
+                   System.out.println(dfdate.format(now) + ", No files to process,,,,,,,,,,,,,");
+                   System.exit(1);
+               }
+              for (int i = 0; i < listOfFiles.length; i++) {
+                if (listOfFiles[i].isFile() && Files.getLastModifiedTime(listOfFiles[i].toPath()).to(TimeUnit.MILLISECONDS) > cutOff) {
+                    content = new String(Files.readAllBytes(listOfFiles[i].toPath()));
+                    if (content.contains(pattern)) {
+                      System.out.println(dfdate.format(now) + " pattern found in: " + listOfFiles[i].getName());  
+                    }
+                }
+              }
+ }
+ 
  public static void processSingle(String infile, String outfile, String map, String isOverride) {
       // case of single input and output file    
     if (! infile.isEmpty() && ! outfile.isEmpty() ) {
